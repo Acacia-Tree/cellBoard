@@ -23,15 +23,42 @@ let m, n;
 
 function updateBoard(board, m, n) {
   let newBoard;
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
-
+  let aliveCells;
+  for (i = 1; i < (m - 1); i++) {
+    for (j = 1; j < (n - 1); j++) {
+      aliveCells = checkSurroundingCells(board, i, j);
+      if (board[i][j] == "1") {
+        if (( aliveCells < 2) || (aliveCells > 3)) {
+          board[i][j] = "0";
+        }
+      } else {
+        if (aliveCells == "3") {
+          board[i][j] = "1";
+        }
+      }
     }
   }
 }
 
-function checkCellStatus() {
+function checkSurroundingCells(board, iCell, jCell) {//на выходе количество живых клеток вокруг
+  let aliveCells = 0;
 
+  let di = [-1, -1, -1, 0, 1, 1, 1, 0];
+  let dj = [-1,  0,  1, 1, 1, 0,-1,-1];// смещения, соответствующие соседям ячейки
+
+  for (let n = 0; n < 8; n++) {
+    let i = iCell + di[n];
+    let j = jCell + dj[n];
+    if (board[i][j] == "1") {
+      aliveCells++;
+    }
+    if ((i == 1) && (j == 3)) {
+      console.log(`board[${iCell}][${jCell}] is ${board[i][j]}`);
+      console.log(`n is ${n}`);
+    }
+  }
+  //console.log(`board[${iCell}][${jCell}] has ${aliveCells} surrounding cells`);
+  return aliveCells;
 }
 function boardGenerator(m, n) {//нужно m x n значений//m*n-1
   let max = 2 ** (m * n - 1);
@@ -109,5 +136,8 @@ let dataString = readFile();
 board = stringToBoard(dataString);
 console.log("showBoard");
 m = 3;
-n = 5;
+n = 3;
+showBoard(board, m + 2, n + 2); //+2 for padding
+updateBoard(board, m + 2, n + 2);
+console.log("showBoard");
 showBoard(board, m + 2, n + 2); //+2 for padding
