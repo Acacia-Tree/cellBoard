@@ -22,22 +22,38 @@ let board = new Array();// Добавить padding со всех сторон, 
 let m, n;
 
 function updateBoard(board, m, n) {
-  let newBoard;
+  let newBoard = new Array();
   let aliveCells;
-  for (i = 1; i < (m - 1); i++) {
-    for (j = 1; j < (n - 1); j++) {
-      aliveCells = checkSurroundingCells(board, i, j);
-      if (board[i][j] == "1") {
-        if (( aliveCells < 2) || (aliveCells > 3)) {
-          board[i][j] = "0";
-        }
+  for (i = 0; i < m; i++) {
+    newBoard[i] = new Array(n ).fill("0");
+    console.log("newBoard");
+    console.log(newBoard);
+    for (j = 0; j < n; j++) {
+
+      if ((j == 0) || (i == 0) || (j == (n - 1)) || (i == (m - 1)) ) {
+        board[i][j] = "0"; //added padding
       } else {
-        if (aliveCells == "3") {
-          board[i][j] = "1";
+        aliveCells = checkSurroundingCells(board, i, j);
+        if (board[i][j] == "1") {
+          if (( aliveCells < 2) || (aliveCells > 3)) {
+            newBoard[i][j] = "0";
+            console.log("newBoard");
+            console.log(newBoard);
+          } else {
+            newBoard[i][j] = "1";
+          }
+        } else {
+          if (aliveCells == "3") {
+            newBoard[i][j] = "1";
+          } else {
+            newBoard[i][j] = "0";
+          }
         }
       }
+
     }
   }
+  return newBoard;
 }
 
 function checkSurroundingCells(board, iCell, jCell) {//на выходе количество живых клеток вокруг
@@ -52,12 +68,12 @@ function checkSurroundingCells(board, iCell, jCell) {//на выходе кол�
     if (board[i][j] == "1") {
       aliveCells++;
     }
-    if ((i == 1) && (j == 3)) {
-      console.log(`board[${iCell}][${jCell}] is ${board[i][j]}`);
+    if ((iCell == 1) && (jCell == 3)) {
+      console.log(`Next to board[${iCell}][${jCell}] is ${board[i][j]}`);
       console.log(`n is ${n}`);
     }
   }
-  //console.log(`board[${iCell}][${jCell}] has ${aliveCells} surrounding cells`);
+  //console.log(`board[${iCell}][${jCell}] has ${aliveCells} alive surrounding cells`);
   return aliveCells;
 }
 function boardGenerator(m, n) {//нужно m x n значений//m*n-1
@@ -138,6 +154,7 @@ console.log("showBoard");
 m = 3;
 n = 3;
 showBoard(board, m + 2, n + 2); //+2 for padding
-updateBoard(board, m + 2, n + 2);
-console.log("showBoard");
-showBoard(board, m + 2, n + 2); //+2 for padding
+let newBoard = updateBoard(board, m + 2, n + 2);
+console.log("last new Board");
+console.log(newBoard);
+showBoard(newBoard, m + 2, n + 2); //+2 for padding
