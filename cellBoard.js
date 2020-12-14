@@ -10,7 +10,7 @@
 
         4) Мёртвая клетка, у которой три живых соседа, возрождается.
 
-Напишите программу, которая будет:
+Напишите программу, которая будет: 
 + случайным образом генерить стартовое состояние;
 +- уметь получать его из файла (способ выбирается через параметры запуска в консоли);
 +— каждую секунду выводить в консоль новое состояние доски
@@ -26,8 +26,6 @@ function updateBoard(board, m, n) {
   let aliveCells;
   for (i = 0; i < m; i++) {
     newBoard[i] = new Array(n ).fill("0");
-    console.log("newBoard");
-    console.log(newBoard);
     for (j = 0; j < n; j++) {
 
       if ((j == 0) || (i == 0) || (j == (n - 1)) || (i == (m - 1)) ) {
@@ -37,8 +35,6 @@ function updateBoard(board, m, n) {
         if (board[i][j] == "1") {
           if (( aliveCells < 2) || (aliveCells > 3)) {
             newBoard[i][j] = "0";
-            console.log("newBoard");
-            console.log(newBoard);
           } else {
             newBoard[i][j] = "1";
           }
@@ -68,12 +64,7 @@ function checkSurroundingCells(board, iCell, jCell) {//на выходе кол�
     if (board[i][j] == "1") {
       aliveCells++;
     }
-    if ((iCell == 1) && (jCell == 3)) {
-      console.log(`Next to board[${iCell}][${jCell}] is ${board[i][j]}`);
-      console.log(`n is ${n}`);
-    }
   }
-  //console.log(`board[${iCell}][${jCell}] has ${aliveCells} alive surrounding cells`);
   return aliveCells;
 }
 function boardGenerator(m, n) {//нужно m x n значений//m*n-1
@@ -83,7 +74,7 @@ function boardGenerator(m, n) {//нужно m x n значений//m*n-1
   let board = new Array();
 
   boardNumber = boardNumber.toString(2);
-  console.log(boardNumber);
+  console.log("boardNumber: " + boardNumber);
 
   for (let i = 0; i <  (m + 2); i++) {//m+2 for padding
     board[i] = new Array();
@@ -96,6 +87,7 @@ function boardGenerator(m, n) {//нужно m x n значений//m*n-1
       }
     }
   }
+  console.log("board: ");
   console.log(board);
   return board;
 }
@@ -109,7 +101,6 @@ function readFile() {
   } catch (err) {
     console.error(err)
   }
-  //console.log(dataString);
   return dataString;
 }
 
@@ -130,7 +121,7 @@ function stringToBoard(dataString) {//for readfile
     dataArray[i] = dataArray[i].padEnd(n + 2, "0");
     dataArray[i] = dataArray[i].split('');
   }
-  return dataArray;
+  return {"dataArray": dataArray, "m": m, "n": n};
 }
 
 function showBoard(boardArray, m, n) {
@@ -142,19 +133,46 @@ function showBoard(boardArray, m, n) {
   }
 }
 
-m = 2;
-n = 3;
-board = boardGenerator(m, n);
-console.log("showBoard");
-showBoard(board, m + 2, n + 2);//working with array, showing array
-console.log();
-let dataString = readFile();
-board = stringToBoard(dataString);
-console.log("showBoard");
-m = 3;
-n = 3;
-showBoard(board, m + 2, n + 2); //+2 for padding
-let newBoard = updateBoard(board, m + 2, n + 2);
-console.log("last new Board");
-console.log(newBoard);
-showBoard(newBoard, m + 2, n + 2); //+2 for padding
+
+function startUpdateLoop() {
+  board = updateBoard(board, m + 2, n + 2);
+  console.log("showBoard");
+  showBoard(board, m + 2, n + 2); //+2 for padding
+  
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
+  process.stdin.on('data', process.exit.bind(process, 0));
+}
+
+function setupUpdateLoop() {
+  const readLineSync = require('readline-sync');
+  let whichMethod = readLineSync.question(`Choose how you would like to load the board's initial state: 
+  *Type 1, if you prefer to randomly generate the board
+  *Type 2, if you prefer to load the board from a file\n`);
+  if (whichMethod == "1") {
+    m = Number(readLineSync.question("How many columns should the board have?\n"));
+    n = Number(readLineSync.question("How many rows should the board have?\n"));
+    console.log("Press any key to leave the program");
+    board = boardGenerator(m, n);
+    console.log("show 1: ");
+    showBoard(board, m + 2, n + 2);
+  } else if (whichMethod == "2") {
+    let dataString = readFile();
+    let dataObject = stringToBoard(dataString);
+    board = dataObject.dataArray;
+    m = dataObject.m;
+    n = dataObject.n;
+    console.log("show 2: ");
+    showBoard(board, m + 2, n + 2);
+  }
+}
+
+setupUpdateLoop();
+let timerId = setInterval(startUpdateLoop, 1000);
+
+//TODO
+//case nothing in file
+//case not board in file
+
+//show in order or keep replacing
+//instead of leaving programm, offer a way to start over
